@@ -6,7 +6,7 @@ CREATE DATABASE employeeTracker_db;
 CREATE TABLE department (
   id SERIAL PRIMARY KEY,
   name VARCHAR(30) UNIQUE NOT NULL
-)
+);
 
 CREATE TABLE role (
     id SERIAL PRIMARY KEY,
@@ -16,7 +16,7 @@ CREATE TABLE role (
     FOREIGN KEY (department)
     REFERENCES department(id)
     ON DELETE SET NULL
-)
+);
 
 CREATE TABLE employee (
     id SERIAL PRIMARY KEY,
