@@ -6,17 +6,17 @@ await connectToDb();
 const viewDepartments = async function() {
     const {rows} = await pool.query('SELECT * FROM department');
     console.table(rows);
-}
+};
 
 const viewRoles = async function() {
     const {rows} = await pool.query('SELECT * FROM role');
     console.table(rows);
-}
+};
 
 const viewEmployees = async function() {
     const {rows} = await pool.query('SELECT * FROM employee');
     console.table(rows);
-}
+};
 
 const addDepartment = async function() {
     inquirer
@@ -26,10 +26,40 @@ const addDepartment = async function() {
                 name: 'newDepartment',
                 message: 'What department would you like to add?'
             }
-        ]).then((answers) => {
-            
-        })
-}
+        ]).then(async (answers) => {
+            try {
+                const insertCommand = 'INSERT INTO department (name) VALUES ($1)';
+                await pool.query(insertCommand, [answers.newDepartment]);
+                console.log(`Department "${answers.newDepartment}" added successfully.`);
+            } catch (err) {
+                console.error('Error adding department:', err);
+            }
+        });
+};
+
+const addRole = async function() {
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'newRole',
+                message: 'What role would you like to add?',
+            },
+            {
+                type: 'input',
+                name: 'newSalary',
+                message: 'What is the salary for this role?',
+            }
+        ]).then(async (answers) => {
+            try {
+                const insertCommand = 'INSERT INTO role (name) VALUES ($1), ($2)';
+                await pool.query(insertCommand, [answers.newRole, answers.newSalary]);
+                console.log(`Role "${answers.newRole}" added successfully.`);
+            } catch (err) {
+                console.error('Error adding role:', err);
+            }
+        });
+};
 
 inquirer
     .prompt([
@@ -48,5 +78,7 @@ inquirer
             viewEmployees();
         } else if (answers.action === 'Add a department') {
             addDepartment();
+        } else if (answers.action === 'Add a role') {
+            addRole();
         }
     });

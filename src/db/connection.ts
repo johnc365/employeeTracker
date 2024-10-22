@@ -1,4 +1,4 @@
-//copied from 23
+//copied from Activity 23
 import dotenv from 'dotenv';
 dotenv.config();
 // Import and require Pool (node-postgres)
