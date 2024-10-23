@@ -52,7 +52,7 @@ const addRole = async function() {
             }
         ]).then(async (answers) => {
             try {
-                const insertCommand = 'INSERT INTO role (name) VALUES ($1), ($2)';
+                const insertCommand = 'INSERT INTO role (title, salary) VALUES ($1), ($2)';
                 await pool.query(insertCommand, [answers.newRole, answers.newSalary]);
                 console.log(`Role "${answers.newRole}" added successfully.`);
             } catch (err) {
@@ -60,6 +60,54 @@ const addRole = async function() {
             }
         });
 };
+
+const addEmployee = async function() {
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'firstName',
+                message: 'What is the first name of the employee?',
+            },
+            {
+                type: 'input',
+                name: 'lastName',
+                message: 'What is the last name of the employee?',
+            }
+        ]).then(async (answers) => {
+            try {
+                const insertCommand = 'INSERT INTO employee (first_name, last_name) VALUES ($1), ($2)';
+                await pool.query(insertCommand, [answers.firstName, answers.lastName]);
+                console.log(`Employee "${answers.firstName, answers.lastName}" added successfully.`);
+            } catch (err) {
+                console.error('Error adding employee:', err);
+            }
+        });
+};
+
+const updateRole = async function() {
+    inquirer
+        .prompt([
+            {
+                type: 'list',
+                name: 'selectedEmployee',
+                message: 'Select an employee to update',
+                choices: []
+            },
+            {
+                type: 'list',
+                name: 'selectedRole',
+                message: 'Select a new role',
+                choices: []
+            }
+        ]).then(async (answers) => {
+            try {
+                await pool.query(``);
+            } catch (err) {
+                console.error('Error updating employee:', err);
+            }
+        })
+}
 
 inquirer
     .prompt([
@@ -80,5 +128,9 @@ inquirer
             addDepartment();
         } else if (answers.action === 'Add a role') {
             addRole();
-        }
+        } else if (answers.action === 'Add an employee') {
+            addEmployee();
+        } else if (answers.action === 'Update an employee role') {
+            updateRole();
+        };
     });
