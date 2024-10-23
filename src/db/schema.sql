@@ -1,7 +1,7 @@
-DROP DATABASE IF EXISTS employeeTracker_db;
-CREATE DATABASE employeeTracker_db;
+DROP DATABASE IF EXISTS employee_tracker_db;
+CREATE DATABASE employee_tracker_db;
 
-\c employeeTracker_db;
+\c employee_tracker_db;
 
 CREATE TABLE department (
   id SERIAL PRIMARY KEY,
@@ -26,7 +26,7 @@ CREATE TABLE employee (
     manager_id INTEGER,
     FOREIGN KEY (role_id)
     REFERENCES role(id)
-    ON DELETE SET NULL
+    ON DELETE SET NULL,
     FOREIGN KEY (manager_id)
     REFERENCES employee(id)
     ON DELETE SET NULL
