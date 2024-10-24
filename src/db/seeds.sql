@@ -8,7 +8,7 @@ VALUES
 INSERT INTO role (title, salary, department)
 VALUES
 ('lawyer', 200000, 1),
-('laborer', 40000, 2),
+('technician', 40000, 2),
 ('salesman', 80000, 3),
 ('manager', 120000, 4);
 
