@@ -157,7 +157,8 @@ const updateRole = async function() {
         ]).then(async (answers) => {
             try {
                 await pool.query(`UPDATE empoyee SET role_id = ${answers.selectedRole} WHERE id = ${answers.selectedEmployee}`);
-                console.log(`Employee role updated successfully`)
+                console.log(`Employee role updated successfully`);
+                cli();
             } catch (err) {
                 console.error('Error updating employee:', err);
             }
