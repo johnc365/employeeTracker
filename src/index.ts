@@ -87,7 +87,7 @@ const addRole = async function () {
         ]).then(async (answers) => {
             console.log(answers);
             try {
-                const insertCommand = 'INSERT INTO role (title, salary) VALUES ($1, $2, $3)';
+                const insertCommand = 'INSERT INTO role (title, salary, department) VALUES ($1, $2, $3)';
                 await pool.query(insertCommand, [answers.newRole, answers.newSalary, answers.newDepartment]);
                 console.log(`Role "${answers.newRole}" added successfully.`);
                 cli();
@@ -156,7 +156,7 @@ const updateRole = async function() {
             }
         ]).then(async (answers) => {
             try {
-                await pool.query(`UPDATE empoyee SET role_id = ${answers.selectedRole} WHERE id = ${answers.selectedEmployee}`);
+                await pool.query(`UPDATE employee SET role_id = ${answers.selectedRole} WHERE id = ${answers.selectedEmployee}`);
                 console.log(`Employee role updated successfully`);
                 cli();
             } catch (err) {
