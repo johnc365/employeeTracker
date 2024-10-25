@@ -1,6 +1,22 @@
 import inquirer from 'inquirer';
 import { pool, connectToDb } from './db/connection.js';
 await connectToDb();
+const departmentList = async function () {
+    const { rows } = await pool.query('SELECT * FROM department');
+    console.log(rows);
+    const departmentArray = rows.map(({ id, name }) => ({ name: name, value: id }));
+    return departmentArray;
+};
+const rolesList = async function () {
+    const { rows } = await pool.query('SELECT title FROM role');
+    const titleArray = rows.map(row => row.title);
+    return titleArray;
+};
+const managerList = async function () {
+    const { rows } = await pool.query('SELECT * FROM employee WHERE role_id = 4');
+    const managerArray = rows.map(({ first_name, last_name, id }) => ({ name: first_name + ' ' + last_name, value: id }));
+    return managerArray;
+};
 const viewDepartments = async function () {
     const { rows } = await pool.query('SELECT * FROM department');
     console.table(rows);
@@ -37,6 +53,7 @@ const addDepartment = async function () {
     });
 };
 const addRole = async function () {
+    const departmentChoices = await departmentList();
     inquirer
         .prompt([
         {
@@ -48,10 +65,17 @@ const addRole = async function () {
             type: 'input',
             name: 'newSalary',
             message: 'What is the salary for this role?',
-        }
+        },
+        {
+            type: 'list',
+            name: 'newDepartment',
+            message: 'What is the department for this role?',
+            choices: departmentChoices,
+        },
     ]).then(async (answers) => {
+        console.log(answers);
         try {
-            const insertCommand = 'INSERT INTO role (title, salary) VALUES ($1), ($2)';
+            const insertCommand = 'INSERT INTO role (title, salary) VALUES ($1, $2)';
             await pool.query(insertCommand, [answers.newRole, answers.newSalary]);
             console.log(`Role "${answers.newRole}" added successfully.`);
             cli();
@@ -62,6 +86,8 @@ const addRole = async function () {
     });
 };
 const addEmployee = async function () {
+    const titleChoices = await rolesList();
+    const managerChoices = await managerList();
     inquirer
         .prompt([
         {
@@ -73,10 +99,22 @@ const addEmployee = async function () {
             type: 'input',
             name: 'lastName',
             message: 'What is the last name of the employee?',
-        }
+        },
+        {
+            type: 'list',
+            name: 'role',
+            message: "What is the employee's job title?",
+            choices: titleChoices,
+        },
+        {
+            type: 'list',
+            name: 'manager',
+            message: "Who is the employee's manager?",
+            choices: managerChoices,
+        },
     ]).then(async (answers) => {
         try {
-            const insertCommand = 'INSERT INTO employee (first_name, last_name) VALUES ($1), ($2)';
+            const insertCommand = 'INSERT INTO employee (first_name, last_name) VALUES ($1, $2)';
             await pool.query(insertCommand, [answers.firstName, answers.lastName]);
             console.log(`Employee "${answers.firstName, answers.lastName}" added successfully.`);
             cli();

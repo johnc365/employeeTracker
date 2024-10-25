@@ -3,20 +3,26 @@ import { pool, connectToDb } from './db/connection.js'
 await connectToDb();
 
 const departmentList = async function () {
-    const { rows } = await pool.query('SELECT name FROM department');
-    const departmentArray = rows.map(row => row.name);
+    const { rows } = await pool.query('SELECT * FROM department');
+    const departmentArray = rows.map(({id, name}) => ({name: name, value: id}));
     return departmentArray;
 }
 
 const rolesList = async function () {
-    const { rows } = await pool.query('SELECT title FROM role');
-    const titleArray = rows.map(row => row.title);
+    const { rows } = await pool.query('SELECT * FROM role');
+    const titleArray = rows.map(({title, id}) => ({name: title, value: id}));
     return titleArray;
 }
 
 const managerList = async function () {
-    const { rows } = await pool.query('SELECT first_name FROM employee WHERE role_id = 4');
-    const managerArray = rows.map(row => row.first_name);
+    const { rows } = await pool.query('SELECT * FROM employee WHERE role_id = 4');
+    const managerArray = rows.map(({first_name, last_name, id}) => ({name: first_name + ' ' + last_name, value: id}));
+    return managerArray;
+}
+
+const employeeList = async function () {
+    const { rows } = await pool.query('SELECT * FROM employee');
+    const managerArray = rows.map(({first_name, last_name, id}) => ({name: first_name + ' ' + last_name, value: id}));
     return managerArray;
 }
 
@@ -79,9 +85,10 @@ const addRole = async function () {
                 choices: departmentChoices,
             },
         ]).then(async (answers) => {
+            console.log(answers);
             try {
-                const insertCommand = 'INSERT INTO role (title, salary) VALUES ($1, $2)';
-                await pool.query(insertCommand, [answers.newRole, answers.newSalary]);
+                const insertCommand = 'INSERT INTO role (title, salary) VALUES ($1, $2, $3)';
+                await pool.query(insertCommand, [answers.newRole, answers.newSalary, answers.newDepartment]);
                 console.log(`Role "${answers.newRole}" added successfully.`);
                 cli();
             } catch (err) {
@@ -93,6 +100,7 @@ const addRole = async function () {
 const addEmployee = async function () {
     const titleChoices = await rolesList();
     const managerChoices = await managerList();
+    managerChoices.push({name: "No manager", value: null});
     inquirer
         .prompt([
             {
@@ -119,8 +127,8 @@ const addEmployee = async function () {
             },
         ]).then(async (answers) => {
             try {
-                const insertCommand = 'INSERT INTO employee (first_name, last_name) VALUES ($1, $2)';
-                await pool.query(insertCommand, [answers.firstName, answers.lastName]);
+                const insertCommand = 'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ($1, $2, $3, $4)';
+                await pool.query(insertCommand, [answers.firstName, answers.lastName, answers.role, answers.manager]);
                 console.log(`Employee "${answers.firstName, answers.lastName}" added successfully.`);
                 cli();
             } catch (err) {
@@ -129,29 +137,32 @@ const addEmployee = async function () {
         });
 };
 
-// const updateRole = async function() {
-//     inquirer
-//         .prompt([
-//             {
-//                 type: 'list',
-//                 name: 'selectedEmployee',
-//                 message: 'Select an employee to update',
-//                 choices: []
-//             },
-//             {
-//                 type: 'list',
-//                 name: 'selectedRole',
-//                 message: 'Select a new role',
-//                 choices: []
-//             }
-//         ]).then(async (answers) => {
-//             try {
-//                 await pool.query(``);
-//             } catch (err) {
-//                 console.error('Error updating employee:', err);
-//             }
-//         });
-// };
+const updateRole = async function() {
+    const employeeChoices = await employeeList();
+    const roleChoices = await rolesList();
+    inquirer
+        .prompt([
+            {
+                type: 'list',
+                name: 'selectedEmployee',
+                message: 'Select an employee to update',
+                choices: employeeChoices,
+            },
+            {
+                type: 'list',
+                name: 'selectedRole',
+                message: 'Select a new role',
+                choices: roleChoices,
+            }
+        ]).then(async (answers) => {
+            try {
+                await pool.query(`UPDATE empoyee SET role_id = ${answers.selectedRole} WHERE id = ${answers.selectedEmployee}`);
+                console.log(`Employee role updated successfully`)
+            } catch (err) {
+                console.error('Error updating employee:', err);
+            }
+        });
+};
 const cli = function () {
     inquirer
         .prompt([
@@ -175,7 +186,7 @@ const cli = function () {
             } else if (answers.action === 'Add an employee') {
                 addEmployee();
             } else if (answers.action === 'Update an employee role') {
-                // updateRole();
+                updateRole();
             };
         });
 };
